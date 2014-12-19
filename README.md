@@ -53,13 +53,17 @@ PRs, issues (especially use cases that Puffin doesn't currently address) welcome
 Puffin reads its input and creates 3 variables (`lines`, `rows`, `cols`). It then evaluates
 the given python command and attempts to intelligently print the result.
 
-lines
-    an array of each newline-stripped line of stream
-rows
-    each line of the stream, separated into components
-cols
-    each column of the stream
+<dl>
+  <dt>lines</dt>
+  <dd>an array of each newline-stripped line of stream</dd>
 
+  <dt>rows</dt>
+  <dd>for each line, the separated components</dd>
+
+  <dt>cols</dt>
+  <dd>each column of the stream</dd>
+</dl>
+    
 Some examples of these in action
 
     # Turn a list into comma-separated values
