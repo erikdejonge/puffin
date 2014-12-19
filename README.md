@@ -50,8 +50,8 @@ PRs, issues (especially use cases that Puffin doesn't currently address) welcome
 
 #### Basics
 
-Puffin acts by creating a namespace of 3 variables (`lines`, `rows`, `cols`), and then evaluating
-the given python command. It then attempts to intelligently print this result.
+Puffin reads its input and creates 3 variables (`lines`, `rows`, `cols`). It then evaluates
+the given python command and attempts to intelligently print the result.
 
 lines
     an array of each newline-stripped line of stream
