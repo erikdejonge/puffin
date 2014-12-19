@@ -13,10 +13,6 @@ into this:
 Puffin is under 200 lines of Python and will stay extremely lean.
 PRs, issues (especially use cases that Puffin doesn't currently address) welcome.
 
-As it stands, this was built in a few hours, so no tests or enforced python2/3 compatibility yet.
-If you're developing, just pipe some data and see what happens. Error messages should be informative.
-Planning to write some tests this weekend.
-
 ## Install
 
     pip install puffin
@@ -143,6 +139,12 @@ Puffin will execute this command before anything else, in order to set up accumu
 Puffin can instead execute a regular python file with the namespace of `lines`, `rows`, `cols`. Puffin executes this file
 as normal Python, without intelligent printing of any results, etc. This option is incompatible with -l and -r.
 
-# Extras
+## Testing
+
+As it stands, this was built in a few hours, so no tests or enforced python2/3 compatibility yet.
+If you're developing, just pipe some data and see what happens. Error messages should be informative.
+Planning to write some tests this weekend.
+
+## Extras
 
 Puffins are members of the family of birds Alcidae, Auks. 
