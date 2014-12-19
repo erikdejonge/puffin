@@ -1,6 +1,6 @@
 # Puffin
 
-Puffin is a Python replacement for awk. You already know Python. Turn this:
+Puffin is a Python replacement for awk. You already know Python. Use it on the command line. Turn this:
 
     $ wc -l *.txt  | awk '{s+=$1} END {print $s}'
     468
@@ -10,7 +10,7 @@ into this:
     $ wc -l *.txt  | puf 'sum(cols[0])'
     468
 
-Puffin is under 200 lines of Python and will stay extremely lean.
+Puffin is under 200 lines of Python.
 PRs, issues (especially use cases that Puffin doesn't currently address) welcome.
 
 ## Install
