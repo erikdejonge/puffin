@@ -42,12 +42,14 @@ def display(result):
         return '\n'.join('%s=%s' % (k, v) for k, v in result.iteritems())
     if isinstance(result, collections.Iterable):
         return '\n'.join(str(x) for x in result)
+    else:
+        return str(result)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--separator', help='Separator between lines', default=None)
-    parser.add_argument('-r', '--raw', help='Do not coerce row results', type=bool, default=False)
+    parser.add_argument('-r', '--raw', help='Do not coerce row results', action='store_true', default=False)
     parser.add_argument('-f', '--file', help='File to execute (instead of passed command.)', default=None)
     parser.add_argument('command', nargs='?')
 
