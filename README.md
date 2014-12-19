@@ -138,3 +138,7 @@ Puffin will execute this command before anything else, in order to set up accumu
 
 Puffin can instead execute a regular python file with the namespace of `lines`, `rows`, `cols`. Puffin executes this file
 as normal Python, without intelligent printing of any results, etc. This option is incompatible with -l and -r.
+
+# Extras
+
+Puffins are members of the family of birds Alcidae, Auks. 
