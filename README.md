@@ -78,14 +78,13 @@ Some examples of these in action
     13
 
     # Get all pids
-    $ ps aux | puf 'cols[1]'
-    PID
+    $ ps aux | puf -h 'cols[1]'
     5231
     155
     ...
 
-    # Remove that PID header
-    $ ps aux | puf 'cols[1][1:]'
+    # Get every second pid
+    $ ps aux | puf 'cols[::2]'
     5231
     155
     ...
@@ -93,11 +92,14 @@ Some examples of these in action
 #### Line operation
 
 With the `-l` option, Puffin evaluates the command on each line individually.
-Lines that evaluate to None are skipped, allowing complex querying.
-The provided namespace is just `line` and `row`.
+Lines that evaluate to None are skipped, allowing complex filtering of results.
+In this case, the provided namespace is just `line` and `row`.
 
-    # Silly filter for all PIDs that
-    $ ps aux | puf -hl 'row[1] if row[0] == "kurt" and row[1] % 10 == 0 else None'
+    # Silly filter for all pids owned by kurt and have value mod 10
+    $ ps aux | puf -l 'row[1] if row[0] == "kurt" and row[1] % 10 == 0 else None'
+    48560
+    94390
+    ...
 
 #### Import statements
 
