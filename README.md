@@ -141,9 +141,7 @@ as normal Python, without intelligent printing of any results, etc. This option 
 
 ## Testing
 
-As it stands, this was built in a few hours, so no tests or enforced python2/3 compatibility yet.
-If you're developing, just pipe some data and see what happens. Error messages should be informative.
-Planning to write some tests this weekend.
+Run `make test` or `make cover`. Currently 95% coverage.
 
 ## Extras
 
