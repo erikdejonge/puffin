@@ -24,9 +24,6 @@ PRs, issues (especially use cases that Puffin doesn't currently address) welcome
     $ puf 27/2.5
     10.8
 
-    $ puf 2**20
-    1048576
-
     $ puf 'range(3)'
     0
     1
@@ -86,7 +83,7 @@ Some examples of these in action
     # Get every second pid
     $ ps aux | puf 'cols[::2]'
     5231
-    155
+    5495
     ...
 
 #### Line operation
@@ -95,7 +92,7 @@ With the `-l` option, Puffin evaluates the command on each line individually.
 Lines that evaluate to None are skipped, allowing complex filtering of results.
 In this case, the provided namespace is just `line` and `row`.
 
-    # Silly filter for all pids owned by kurt and have value mod 10
+    # filter for all pids owned by kurt and have pid mod 10
     $ ps aux | puf -l 'row[1] if row[0] == "kurt" and row[1] % 10 == 0 else None'
     48560
     94390
@@ -117,7 +114,7 @@ Specifically, Puffin will catch `NameError`s and attempt an import. If that fail
 Puffin normally operates on the entire stream at a single time. This option changes that behavior to perform the operation per line.
 Among other things, this allows for complex filtering in a single pass. This also changes the given namespace to `line` and `row`.
 
-  -s SEPARATOR, --separator SEPARATOR
+    -s SEPARATOR, --separator SEPARATOR
 
 Use this option to split lines into rows and columns on something other than whitespace (comma is a common alternative)
 
@@ -145,4 +142,4 @@ Run `make test` or `make cover`. Currently 95% coverage.
 
 ## Extras
 
-Puffins are members of the family of birds Alcidae, Auks. 
+Puffins are members of the family of birds Alcidae, or Auks.
