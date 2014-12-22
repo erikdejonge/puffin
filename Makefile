@@ -4,7 +4,7 @@ publish:
 	twine upload dist/*
 
 cover:
-	coverage run --omit="venv/*" --omit="tests/*" -m unittest discover tests
+	coverage run --omit="venv/*,tests/*,/usr/local/lib/python*" -m unittest discover tests
 	coverage report
 	coverage html
 	open htmlcov/index.html

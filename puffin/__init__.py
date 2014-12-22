@@ -126,7 +126,7 @@ def execute(local, glob, command=None, file=None, raw=False):
             display(result)
 
 
-def main():
+def main(params=None):
     parser = argparse.ArgumentParser(add_help=False)
     # for, line, puf -
     parser.add_argument('-l', '--line',
@@ -152,7 +152,7 @@ def main():
     parser.add_argument('--version', action='store_true', help='Display the version.')
     parser.add_argument('command', nargs='?')
 
-    args = parser.parse_args()
+    args = parser.parse_args(params)
 
     if args.version:
         import pkg_resources
