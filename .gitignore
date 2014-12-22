@@ -2,3 +2,5 @@
 puffin.egg-info/
 *.pyc
 dist/
+.coverage
+htmlcov/
