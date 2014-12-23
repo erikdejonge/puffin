@@ -34,7 +34,6 @@ PRs, issues (especially use cases that Puffin doesn't currently address) welcome
     $ wc -l *.txt  | puf 'sum(cols[0])'
     468
 
-
 #### Puffin can do complex filters in a single pass
 
     # gives pids of all processes owned by kurt
