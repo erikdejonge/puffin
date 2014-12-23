@@ -60,19 +60,31 @@ class TestParsing(unittest.TestCase):
         ])
 
 
-class TestDisplay(unittest.TestCase):
+class TestRetryEval(unittest.TestCase):
+    def test_retry_eval(self):
+        self.assertEqual(puffin.retry_eval('math.ceil(3.3)', {}, {}), 4)
+        self.assertRaises(NameError, puffin.retry_eval, 'invalid_object.foo', {}, {})
+
+
+class StreamCaptureTest(unittest.TestCase):
     def assertWasStreamed(self, s):
         self.sout.seek(0)
         self.assertEqual(self.sout.read(), s)
 
     def setUp(self):
         self._stdout = sys.stdout
+        self._stdin = sys.stdin
         self.sout = StringIO()
+        self.sin = StringIO()
         sys.stdout = self.sout
+        sys.stdin = self.sin
 
     def tearDown(self):
         sys.stdout = self._stdout
+        sys.stdin = self._stdin
 
+
+class TestDisplay(StreamCaptureTest):
     def test_display_string(self):
         puffin.display('hello')
         self.assertWasStreamed('hello\n')
@@ -82,35 +94,19 @@ class TestDisplay(unittest.TestCase):
         self.assertWasStreamed('')
 
     def test_display_iterable(self):
-        puffin.display([1, 2, 3])
-        self.assertWasStreamed('1\n2\n3\n')
+        puffin.display([1, None, 2, 'None', 3])
+        self.assertWasStreamed('1\n2\nNone\n3\n')
 
     def test_display_mapping(self):
-        puffin.display({'a': 5, 'b': 3})
-        self.assertWasStreamed('a=5\nb=3\n')
+        puffin.display({'a': 5, 'b': 3, 'c': None, 'd': 'None'})
+        self.assertWasStreamed('a=5\nb=3\nd=None\n')
 
     def test_display_number(self):
         puffin.display(5)
         self.assertWasStreamed('5\n')
 
 
-class TestRetryEval(unittest.TestCase):
-    def test_retry_eval(self):
-        self.assertEqual(puffin.retry_eval('math.ceil(3.3)', {}, {}), 4)
-        self.assertRaises(NameError, puffin.retry_eval, 'invalid_object.foo', {}, {})
-
-
-class TestMain(TestDisplay):
-    def setUp(self):
-        super(TestMain, self).setUp()
-        self._stdin = sys.stdin
-        self.sin = StringIO()
-        sys.stdin = self.sin
-
-    def tearDown(self):
-        super(TestMain, self).tearDown()
-        sys.stdin = self._stdin
-
+class TestMain(StreamCaptureTest):
     def test_main(self):
         puffin.main(['range(3)'])
         self.assertWasStreamed('0\n1\n2\n')

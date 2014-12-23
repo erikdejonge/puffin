@@ -74,9 +74,10 @@ def display(result):
     elif isinstance(result, basestring):
         print(result)
     elif isinstance(result, collections.Mapping):
-        print('\n'.join('%s=%s' % (k, v) for k, v in result.iteritems()))
+        print('\n'.join('%s=%s' % (k, v) for
+                        k, v in result.iteritems() if v is not None))
     elif isinstance(result, collections.Iterable):
-        print('\n'.join(str(x) for x in result))
+        print('\n'.join(str(x) for x in result if x is not None))
     else:
         print(str(result))
 
