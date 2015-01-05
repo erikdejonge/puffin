@@ -1,16 +1,21 @@
 # Puffin
 
-Puffin is a Python replacement for awk. You already know Python. Use it on the command line. Turn this:
+Puffin is a Python replacement for awk, cut, tr, and many other command line tools. Use familiar Python instead of a half dozen tools.
 
+    # Bash method to sum a column of numbers
     $ wc -l *.txt  | awk '{s+=$1} END {print $s}'
     468
-
-into this:
-
+    # Puffin
     $ wc -l *.txt  | puf 'sum(cols[0])'
     468
 
-Puffin is under 200 lines of Python.
+    # Bash methods to get the second column of a csv
+    $ awk -F "\"*,\"*" '{print $2}' data.csv > names.txt
+    $ cat data.csv | cut -f2 -s > names.txt
+    # Puffin
+    $ cat data.csv | puf -s, 'cols[1]' > names.txt
+
+
 PRs, issues (especially use cases that Puffin doesn't currently address) welcome.
 
 ## Install
