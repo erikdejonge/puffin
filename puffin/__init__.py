@@ -1,4 +1,4 @@
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 import sys
 import argparse
 import collections
@@ -34,8 +34,10 @@ def parse_lines(stream, separator=None):
     :param separator: (optional)
     :return: generator
     """
+    separator = unicode(separator)
     for line in stream:
-        line = line.rstrip('\n')
+        if line[-1] == u'\n':
+            line = line[:-1]
         row = [interp(i) for i in line.split(separator)]
         yield line, row
 
@@ -73,14 +75,14 @@ def display(result):
     if result is None:
         pass
     elif isinstance(result, basestring):
-        print(result)
+        print(result.encode('utf8'))
     elif isinstance(result, collections.Mapping):
-        print('\n'.join('%s=%s' % (k, v) for
+        print(u'\n'.join('%s=%s' % (k, v) for
                         k, v in result.iteritems() if v is not None))
     elif isinstance(result, collections.Iterable):
-        print('\n'.join(str(x) for x in result if x is not None))
+        print(u'\n'.join(unicode(x) for x in result if x is not None).encode('utf8'))
     else:
-        print(str(result))
+        print(unicode(result))
 
 
 def retry_eval(command, glob, local):
