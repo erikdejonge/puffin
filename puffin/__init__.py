@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import sys
 import argparse
 import collections
+import codecs
 import re
 
 
@@ -145,13 +146,14 @@ def main(params=None):
                         help='Statement to execute before the command '
                              '(e.g. set up accumulation variables).',
                         default=None)
-    parser.add_argument('-f', '--file',
-                        help='Execute the file (instead of a '
-                             'command). Incompatible with -l and -r.',
-                        default=None)
+    #parser.add_argument('-f', '--file',
+    #                    help='Execute the file (instead of a '
+    #                         'command). Incompatible with -l and -r.',
+    #                    default=None)
     parser.add_argument('--help', action='help', help='Display this help message.')
     parser.add_argument('--version', action='store_true', help='Display the version.')
     parser.add_argument('command', nargs='?')
+    parser.add_argument('file', nargs='?')
 
     args = parser.parse_args(params)
 
@@ -159,16 +161,19 @@ def main(params=None):
         import pkg_resources
         print(pkg_resources.get_distribution('puffin').version)
         return
-    if not args.command or args.file:
+    if not args.command:  # or args.file:
         return parser.print_help()
 
-    stream = sys.stdin
+    if args.file:
+        stream = codecs.open(args.file, 'r', 'utf8')
+    else:
+        stream = sys.stdin
 
     if args.initial:
         exec args.initial in globals()
 
     if stream.isatty():
-        execute({}, globals(), args.command, args.file, args.raw)
+        execute({}, globals(), args.command, None, args.raw)
     else:
         if args.skip_header:
             stream.readline()  # skip, so no action necessary
@@ -178,7 +183,7 @@ def main(params=None):
                     'line': line,
                     'row': row,
                 }
-                execute(local, globals(), args.command, args.file, args.raw)
+                execute(local, globals(), args.command, None, args.raw)
         else:
             local = parse_buffer(stream, args.separator)
-            execute(local, globals(), args.command, args.file, args.raw)
+            execute(local, globals(), args.command, None, args.raw)
