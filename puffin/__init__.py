@@ -1,191 +1,115 @@
-from __future__ import division, print_function, unicode_literals
-import sys
+from __future__ import division, unicode_literals, absolute_import
+
+from tempfile import NamedTemporaryFile
 import argparse
-import collections
 import codecs
-import re
+import shutil
+import sys
+
+from puffin import lib as puflib
 
 
-def interp(i):
-    """
-    Attempt to coerce i to an int or float
-
-    :param i:
-    :return:
-    """
-    try:
-        return int(i)
-    except ValueError:
-        pass
-    try:
-        return float(i)
-    except ValueError:
-        pass
-    return i
-
-
-def parse_lines(stream, separator=None):
-    """
-    Takes each line of a stream, creating a generator that yields
-    tuples of line, row - where row is the line split by separator
-    (or by whitespace if separator is None.
-
-    :param stream:
-    :param separator: (optional)
-    :return: generator
-    """
-    separator = unicode(separator)
-    for line in stream:
-        if line[-1] == u'\n':
-            line = line[:-1]
-        row = [interp(i) for i in line.split(separator)]
-        yield line, row
-
-
-def parse_buffer(stream, separator=None):
-    """
-    Returns a dictionary of the lines of a stream, an array of rows of the
-     stream (split by separator), and an array of the columns of the stream
-     (also split by separator)
-
-    :param stream:
-    :param separator:
-    :return: dict
-    """
-    rows = []
-    lines = []
-    for line, row in parse_lines(stream, separator):
-        lines.append(line)
-        rows.append(row)
-    cols = zip(*rows)
-    return {
-        'rows': rows,
-        'lines': lines,
-        'cols': cols,
-    }
-
-
-def display(result):
-    """
-    Intelligently print the result (or pass if result is None).
-
-    :param result:
-    :return: None
-    """
-    if result is None:
-        pass
-    elif isinstance(result, basestring):
-        print(result.encode('utf8'))
-    elif isinstance(result, collections.Mapping):
-        print(u'\n'.join('%s=%s' % (k, v) for
-                        k, v in result.iteritems() if v is not None))
-    elif isinstance(result, collections.Iterable):
-        print(u'\n'.join(unicode(x) for x in result if x is not None).encode('utf8'))
-    else:
-        print(unicode(result))
-
-
-def retry_eval(command, glob, local):
-    """
-    Continue to attempt to execute the given command, importing objects which
-    cause a NameError in the command
-
-    :param command: command for eval
-    :param glob: globals dict for eval
-    :param local: locals dict for eval
-    :return: command result
-    """
-    try:
-        return eval(command, glob, local)
-    except NameError as e:
-        match = re.match("name '(.*)' is not defined", e.message)
-        if not match:
-            raise e
-        try:
-            exec ('import %s' % (match.group(1), )) in glob
-        except ImportError:
-            raise e
-        return retry_eval(command, glob, local)
-
-
-def execute(local, glob, command=None, file=None, raw=False):
-    """
-    Execute either command or file using the passed dictionaries.
-    Intelligently print the result (unless raw=True is passed)
-
-    :param local: locals dict for exec
-    :param glob: globals dict for exec
-    :param command: command for eval
-    :param file: file for exec
-    :param raw: bool to print the result directly
-    :return: None
-    """
-    if file:
-        execfile(file, glob, local)
-    else:
-        result = retry_eval(command, glob, local)
-        if raw:
-            print(result)
+def determine_streams(args):
+    for f in args.file:
+        stream = codecs.open(f, 'r', 'utf8')
+        if args.in_place is None:
+            out = sys.stdout
         else:
-            display(result)
+            out = NamedTemporaryFile('w')
+        yield stream, out
+    else:
+        yield sys.stdin, sys.stdout
+
+
+def post_process(args, stream_in, stream_out):
+    if args.in_place and getattr(stream_in, 'name'):
+        shutil.move(stream_in.name, stream_in.name + args.in_place)
+        shutil.move(stream_out.name, stream_in.name)
+
+
+def interpret_stream(stream_in, line=False, skip_header=False, separator=None):
+    if stream_in.isatty():
+        yield {}
+    else:
+        if skip_header:
+            stream_in.readline()  # skip, so no action necessary
+        if line:
+            for l, row in puflib.parse_lines(stream_in, separator):
+                local = {
+                    'line': l,
+                    'row': row,
+                    }
+                yield local
+        else:
+            yield puflib.parse_buffer(stream_in, separator)
+
+
+def evaluate(local, command, file):
+    if file:
+        execfile(file, globals(), local)
+    elif command:
+        return puflib.safe_evaluate(command, globals(), local)
+    else:
+        raise ValueError('Must supply either command or file.')
 
 
 def main(params=None):
     parser = argparse.ArgumentParser(add_help=False)
-    # for, line, puf -
     parser.add_argument('-l', '--line',
                     help='Execute the command for each line of input.',
                     action='store_true', default=False)
+    # parsing arguments
     parser.add_argument('-s', '--separator', help='Custom column separator.', default=None)
+    parser.add_argument('-t', '--tab-separator', help='Use tab as the column separator.', 
+                        action='store_true', default=False)
     parser.add_argument('-h', '--skip-header',
                         help='Skip the first line of the stream.',
                         action='store_true', default=False)
+    # execution options
+    parser.add_argument('-b', '--before',
+                        help='Statement to execute before the command '
+                             '(e.g. set up accumulation variables).', default=None)
+    parser.add_argument('-f', '--command-file',
+                        help='Execute the file (instead of evaluating a '
+                             'command). Incompatible with -r.', default=None)
+    # output options
     parser.add_argument('-r', '--raw',
                         help='Print the raw result of the command. '
                              '(No smart display.)',
                         action='store_true', default=False)
-    parser.add_argument('-i', '--initial',
-                        help='Statement to execute before the command '
-                             '(e.g. set up accumulation variables).',
-                        default=None)
-    #parser.add_argument('-f', '--file',
-    #                    help='Execute the file (instead of a '
-    #                         'command). Incompatible with -l and -r.',
-    #                    default=None)
+    parser.add_argument('-i', '--in-place',
+                        help='Edit files in-place, saving backups with the specified extension. '
+                             'If a zero-length extension is given, no backup will be saved. '
+                             'It is not recommended to give a zero-length extension when in-place '
+                             'editing files, as you risk corruption or partial content in situations '
+                             'where disk space is exhausted, etc.', default=None)
     parser.add_argument('--help', action='help', help='Display this help message.')
     parser.add_argument('--version', action='store_true', help='Display the version.')
     parser.add_argument('command', nargs='?')
-    parser.add_argument('file', nargs='?')
+    parser.add_argument('file', nargs='*')
 
     args = parser.parse_args(params)
+    if args.tab_separator:
+        args.separator = '\t'
 
     if args.version:
         import pkg_resources
-        print(pkg_resources.get_distribution('puffin').version)
+        print pkg_resources.get_distribution('puffin').version
         return
-    if not args.command:  # or args.file:
+    if not (args.command or args.command_file):
         return parser.print_help()
 
-    if args.file:
-        stream = codecs.open(args.file, 'r', 'utf8')
-    else:
-        stream = sys.stdin
+    if args.before:
+        exec args.before in globals()
 
-    if args.initial:
-        exec args.initial in globals()
-
-    if stream.isatty():
-        execute({}, globals(), args.command, None, args.raw)
-    else:
-        if args.skip_header:
-            stream.readline()  # skip, so no action necessary
-        if args.line:
-            for line, row in parse_lines(stream, args.separator):
-                local = {
-                    'line': line,
-                    'row': row,
-                }
-                execute(local, globals(), args.command, None, args.raw)
-        else:
-            local = parse_buffer(stream, args.separator)
-            execute(local, globals(), args.command, None, args.raw)
+    for stream_in, stream_out in determine_streams(args):
+        for local in interpret_stream(stream_in, args.line,
+                                      args.skip_header, args.separator):
+            result = evaluate(local, args.command, args.command_file)
+            if args.command_file:
+                continue
+            if args.raw:
+                puflib.display_raw(result, stream_out)
+            else:
+                puflib.display(result, stream_out)
+        post_process(args, stream_in, stream_out)

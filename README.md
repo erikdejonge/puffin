@@ -13,7 +13,7 @@ Puffin is a Python replacement for awk, cut, tr, and many other command line too
     $ awk -F "\"*,\"*" '{print $2}' data.csv > names.txt
     $ cat data.csv | cut -f2 -s > names.txt
     # Puffin
-    $ cat data.csv | puf -s, 'cols[1]' > names.txt
+    $ puf -s, 'cols[1]' data.csv > names.txt
 
 
 PRs, issues (especially use cases that Puffin doesn't currently address) welcome.
