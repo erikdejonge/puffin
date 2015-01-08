@@ -10,13 +10,14 @@ from puffin import lib as puflib
 
 
 def determine_streams(args):
-    for f in args.file:
-        stream = codecs.open(f, 'r', 'utf8')
-        if args.in_place is None:
-            out = sys.stdout
-        else:
-            out = NamedTemporaryFile('w')
-        yield stream, out
+    if args.file:
+        for f in args.file:
+            stream = codecs.open(f, 'r', 'utf8')
+            if args.in_place is None:
+                out = sys.stdout
+            else:
+                out = NamedTemporaryFile('w')
+            yield stream, out
     else:
         yield sys.stdin, sys.stdout
 
