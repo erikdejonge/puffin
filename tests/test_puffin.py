@@ -3,6 +3,8 @@ import unittest
 from tests import StreamCaptureTest
 import re
 from tempfile import NamedTemporaryFile
+import os
+
 
 class TestMain(StreamCaptureTest):
     def test_main(self):
@@ -49,3 +51,29 @@ class TestMain(StreamCaptureTest):
         t.flush()
         puffin.main(['-l', 'line.replace("bye", "hi")', t.name, t.name])
         self.assertWasStreamed('hi\nhi\n')
+
+    def test_in_place_modification(self):
+        t = NamedTemporaryFile()
+        t.write('bye\n')
+        t.flush()
+        extension = '.bak'
+        backup = t.name + extension
+        puffin.main(['-l', '-i', extension, 'line.replace("bye", "hi")', t.name])
+        with open(backup) as f:
+            self.assertEqual(f.read(), 'bye\n')
+        with open(t.name) as f:
+            self.assertEqual(f.read(), 'hi\n')
+
+    def test_in_place_no_extension(self):
+        t = NamedTemporaryFile()
+        t.write('bye\n')
+        t.flush()
+        extension = ''
+        puffin.main(['-l', '-i', extension, 'line.replace("bye", "hi")', t.name])
+        with open(t.name) as f:
+            self.assertEqual(f.read(), 'hi\n')
+            # t.close()
+            # os.remove(t.name)
+            # os.remove(backup)
+
+

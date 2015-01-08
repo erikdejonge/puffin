@@ -23,8 +23,9 @@ def determine_streams(args):
 
 
 def post_process(args, stream_in, stream_out):
-    if args.in_place and getattr(stream_in, 'name'):
-        shutil.move(stream_in.name, stream_in.name + args.in_place)
+    if args.in_place is not None and getattr(stream_in, 'name'):
+        if args.in_place:
+            shutil.move(stream_in.name, stream_in.name + args.in_place)
         shutil.move(stream_out.name, stream_in.name)
 
 
