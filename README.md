@@ -2,14 +2,14 @@
 
 Puffin is a Python replacement for awk, cut, tr, and many other command line tools. Use familiar Python instead of a half dozen tools.
 
-    # Bash method to sum a column of numbers
+    # Other method to sum a column of numbers
     $ wc -l *.txt  | awk '{s+=$1} END {print $s}'
     468
     # Puffin
     $ wc -l *.txt  | puf 'sum(cols[0])'
     468
 
-    # Bash methods to get the second column of a csv
+    # Other methods to get the second column of a csv
     $ awk -F "\"*,\"*" '{print $2}' data.csv > names.txt
     $ cat data.csv | cut -f2 -s > names.txt
     # Puffin
@@ -54,25 +54,18 @@ PRs, issues (especially use cases that Puffin doesn't currently address) welcome
 Puffin reads its input and creates 3 variables (`lines`, `rows`, `cols`). It then evaluates
 the given python command and attempts to intelligently print the result.
 
-<dl>
-  <dt>lines</dt>
-  <dd>an array of each newline-stripped line of stream</dd>
+- *lines* - an array of each newline-stripped line of stream
+- *rows* - the separated components of each line
+- *cols* - each column of the stream
 
-  <dt>rows</dt>
-  <dd>for each line, the separated components</dd>
-
-  <dt>cols</dt>
-  <dd>each column of the stream</dd>
-</dl>
-    
 Some examples of these in action
 
     # Turn a list into comma-separated values
-    $ cat invalid.txt | puf '",".join(lines)'
+    $ puf '",".join(lines)' invalid.txt
     3021,4439,9544,3985,1262
 
     # Check the validity of a csv
-    $ cat cities.csv | puf -s, '[len(r) for r in rows]'
+    $ puf -s, '[len(r) for r in rows]' cities.csv
     13
     14
     13
@@ -116,20 +109,24 @@ Specifically, Puffin will catch `NameError`s and attempt an import. If that fail
     -l, --line
 
 Puffin normally operates on the entire stream at a single time. This option changes that behavior to perform the operation per line.
-Among other things, this allows for complex filtering in a single pass. This also changes the given namespace to `line` and `row`.
+This also changes the available local variables to `line` and `row`.
 
     -s SEPARATOR, --separator SEPARATOR
 
 Use this option to split lines into rows and columns on something other than whitespace (comma is a common alternative)
 
+    -t, --tab-separator
+
+This is equivalent to `-s$'\t'`.
+
       -h, --skip-header
 
-Some streams (`ps`, csv files) have headers. This option skips the first line of the file so you don't have to worry about
-handling it correctly.
+Some streams (`ps`, csv files) have headers. This option skips the first line of the input stream so you don't have to worry about
+handling those lines correctly.
 
       -r, --raw
 
-Puffin tries to intelligently display your results. Use this option to bypass those attempts and display the raw result.
+Normally, puffin tries to intelligently display results.
 
       -i INITIAL, --initial INITIAL
 
