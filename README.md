@@ -128,7 +128,7 @@ handling those lines correctly.
 
 Normally, puffin tries to intelligently display results.
 
-      -i INITIAL, --initial INITIAL
+      -b BEFORE, --before BEFORE
 
 Puffin will execute this command before anything else, in order to set up accumulation variables, do import renames, or other setup.
 
@@ -136,6 +136,12 @@ Puffin will execute this command before anything else, in order to set up accumu
 
 Puffin can instead execute a regular python file with the namespace of `lines`, `rows`, `cols`. Puffin executes this file
 as normal Python, without intelligent printing of any results, etc. This option is incompatible with -l and -r.
+
+    -i IN_PLACE, --in-place IN_PLACE
+
+This is the same as `sed`s in-place option. Pass a file extension and pass file arguments to `puffin`. Sed will then replace the contents of the file
+with the results from the puffin operation, creating a backup with the provided extenion. It's suggested using the `-l` option in conjunction. If you
+do not want a backup, you must pass the empty string with a space in bash like so: `puf -i '' <command>`.
 
 ## Testing
 
