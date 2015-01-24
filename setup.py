@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='puffin',
-      version='0.1.4',
+      version='0.2.0',
       description='Python replacement for awk',
       url='http://github.com/kespindler/puffin',
       author='Kurt Spindler',
