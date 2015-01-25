@@ -8,11 +8,11 @@ setup(name='puffin',
       author='Kurt Spindler',
       author_email='kespindler@gmail.com',
       license='MIT',
-      packages=['puffin'],
+      packages=['puf'],
       zip_safe=False,
       entry_points={
           'console_scripts': [
-              'puf=puffin:main',
+              'puf=puf.cli:main',
           ],
       },
 )

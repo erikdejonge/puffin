@@ -17,5 +17,5 @@ def cover():
 
 
 @task
-def test():
-    local('python -m unittest discover')
+def test(path='discover'):
+    local('python -m unittest ' + path)

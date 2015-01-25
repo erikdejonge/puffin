@@ -1,58 +1,8 @@
 from __future__ import division, unicode_literals, absolute_import
 
-from tempfile import NamedTemporaryFile
 import argparse
-import codecs
-import shutil
-import sys
 
-from puffin import lib as puflib
-
-
-def determine_streams(args):
-    if args.file:
-        for f in args.file:
-            stream = codecs.open(f, 'r', 'utf8')
-            if args.in_place is None:
-                out = sys.stdout
-            else:
-                out = NamedTemporaryFile('w')
-            yield stream, out
-    else:
-        yield sys.stdin, sys.stdout
-
-
-def post_process(args, stream_in, stream_out):
-    if args.in_place is not None and getattr(stream_in, 'name'):
-        if args.in_place:
-            shutil.move(stream_in.name, stream_in.name + args.in_place)
-        shutil.move(stream_out.name, stream_in.name)
-
-
-def interpret_stream(stream_in, line=False, skip_header=False, separator=None):
-    if stream_in.isatty():
-        yield {}
-    else:
-        if skip_header:
-            stream_in.readline()  # skip, so no action necessary
-        if line:
-            for l, row in puflib.parse_lines(stream_in, separator):
-                local = {
-                    'line': l,
-                    'row': row,
-                    }
-                yield local
-        else:
-            yield puflib.parse_buffer(stream_in, separator)
-
-
-def evaluate(local, command, file):
-    if file:
-        execfile(file, globals(), local)
-    elif command:
-        return puflib.safe_evaluate(command, globals(), local)
-    else:
-        raise ValueError('Must supply either command or file.')
+from puf import cli_lib
 
 
 def main(params=None):
@@ -101,17 +51,18 @@ def main(params=None):
     if not (args.command or args.command_file):
         return parser.print_help()
 
+    glob = {}
     if args.before:
-        exec args.before in globals()
+        exec args.before in glob
 
-    for stream_in, stream_out in determine_streams(args):
-        for local in interpret_stream(stream_in, args.line,
-                                      args.skip_header, args.separator):
-            result = evaluate(local, args.command, args.command_file)
+    for stream_in, stream_out in cli_lib.determine_streams(args):
+        for local in cli_lib.interpret_stream(
+                stream_in, args.line, args.skip_header, args.separator):
+            result = cli_lib.evaluate(local, glob, args.command, args.command_file)
             if args.command_file:
                 continue
             if args.raw:
-                puflib.display_raw(result, stream_out)
+                cli_lib.display_raw(result, stream_out)
             else:
-                puflib.display(result, stream_out)
-        post_process(args, stream_in, stream_out)
+                cli_lib.display(result, stream_out)
+        cli_lib.post_process(args, stream_in, stream_out)

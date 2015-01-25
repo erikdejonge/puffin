@@ -1,6 +1,10 @@
 from __future__ import division, unicode_literals
 import collections
 import re
+from tempfile import NamedTemporaryFile
+import codecs
+import shutil
+import sys
 
 
 def interpret_segment(i):
@@ -109,3 +113,49 @@ def safe_evaluate(command, glob, local):
         except ImportError:
             raise e
         return safe_evaluate(command, glob, local)
+
+
+def determine_streams(args):
+    if args.file:
+        for f in args.file:
+            stream = codecs.open(f, 'r', 'utf8')
+            if args.in_place is None:
+                out = sys.stdout
+            else:
+                out = NamedTemporaryFile('w')
+            yield stream, out
+    else:
+        yield sys.stdin, sys.stdout
+
+
+def post_process(args, stream_in, stream_out):
+    if args.in_place is not None and getattr(stream_in, 'name'):
+        if args.in_place:
+            shutil.move(stream_in.name, stream_in.name + args.in_place)
+        shutil.move(stream_out.name, stream_in.name)
+
+
+def interpret_stream(stream_in, line=False, skip_header=False, separator=None):
+    if stream_in.isatty():
+        yield {}
+    else:
+        if skip_header:
+            stream_in.readline()  # skip, so no action necessary
+        if line:
+            for l, row in parse_lines(stream_in, separator):
+                local = {
+                    'line': l,
+                    'row': row,
+                    }
+                yield local
+        else:
+            yield parse_buffer(stream_in, separator)
+
+
+def evaluate(local, glob, command, file):
+    if file:
+        execfile(file, glob, local)
+    elif command:
+        return safe_evaluate(command, glob, local)
+    else:
+        raise ValueError('Must supply either command or file.')

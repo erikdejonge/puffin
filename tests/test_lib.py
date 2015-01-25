@@ -1,7 +1,6 @@
-from puffin import lib as puflib
+from puf import cli_lib as puflib
 import unittest
 from cStringIO import StringIO
-from tests import StreamCaptureTest
 
 
 class TestInterpret(unittest.TestCase):
