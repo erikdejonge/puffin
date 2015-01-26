@@ -102,17 +102,17 @@ def safe_evaluate(command, glob, local):
     :param local: locals dict for eval
     :return: command result
     """
-    try:
-        return eval(command, glob, local)
-    except NameError as e:
-        match = re.match("name '(.*)' is not defined", e.message)
-        if not match:
-            raise e
+    while True:
         try:
-            exec ('import %s' % (match.group(1), )) in glob
-        except ImportError:
-            raise e
-        return safe_evaluate(command, glob, local)
+            return eval(command, glob, local)
+        except NameError as e:
+            match = re.match("name '(.*)' is not defined", e.message)
+            if not match:
+                raise e
+            try:
+                exec ('import %s' % (match.group(1), )) in glob
+            except ImportError:
+                raise e
 
 
 def determine_streams(args):
