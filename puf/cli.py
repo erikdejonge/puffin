@@ -61,8 +61,11 @@ def main(params=None):
             result = cli_lib.evaluate(local, glob, args.command, args.command_file)
             if args.command_file:
                 continue
-            if args.raw:
-                cli_lib.display_raw(result, stream_out)
-            else:
-                cli_lib.display(result, stream_out)
+            try:
+                if args.raw:
+                    cli_lib.display_raw(result, stream_out)
+                else:
+                    cli_lib.display(result, stream_out)
+            except IOError:
+                return
         cli_lib.post_process(args, stream_in, stream_out)
