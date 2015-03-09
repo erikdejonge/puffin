@@ -232,14 +232,14 @@ class TestMain(StreamCaptureTest):
         cli.main(['-hl', 'row[0]*2'])
         self.assertWasStreamed('10\n6\n')
 
-    def test_version(self):
-        """
-        test_version
-        """
-        cli.main(['--version'])
-        self.sout.seek(0)
-        streamed = self.sout.read()
-        self.assertTrue(re.match('\d+\.\d+\.\d+$', streamed))
+    # def test_version(self):
+    #     """
+    #     test_version
+    #     """
+    #     cli.main(['--version'])
+    #     self.sout.seek(0)
+    #     streamed = self.sout.read()
+    #     self.assertTrue(re.match('\d+\.\d+\.\d+$', streamed))
 
     def test_passed_file(self):
         """
