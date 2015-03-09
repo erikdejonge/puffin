@@ -99,6 +99,8 @@ def display(result, stream):
     elif isinstance(result, str):
         pass
     elif isinstance(result, collections.Mapping):
+        from collections import OrderedDict
+        result = OrderedDict(sorted(result.items()))
         result = u'\n'.join(u'%s=%s' % (k, v) for
                             k, v in result.items() if v is not None)
 
@@ -107,7 +109,7 @@ def display(result, stream):
     else:
         result = str(result)
 
-    stream.write(result.encode('utf8'))
+    stream.write(result)
     stream.write('\n')
 
 

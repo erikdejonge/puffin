@@ -13,7 +13,7 @@ from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
-from unittester import *
+from unittester import unit_test_main
 
 import unittest
 from io import StringIO
@@ -195,7 +195,7 @@ class TestMain(StreamCaptureTest):
         """
         test_main
         """
-        cli.main(['range(4)'])
+        cli.main(['range(3)'])
         self.assertWasStreamed('0\n1\n2\n')
 
     def test_main_initial(self):
@@ -211,7 +211,7 @@ class TestMain(StreamCaptureTest):
         """
         test_main_raw
         """
-        cli.main(['-r', 'range(3)'])
+        cli.main(['-r', 'list(range(3))'])
         self.assertWasStreamed('[0, 1, 2]\n')
 
     def test_main_linemode(self):
@@ -246,7 +246,7 @@ class TestMain(StreamCaptureTest):
         test_passed_file
         """
         t = NamedTemporaryFile()
-        t.write('bye\n')
+        t.write(b'bye\n')
         t.flush()
         cli.main(['-l', 'line.replace("bye", "hi")', t.name])
         self.assertWasStreamed('hi\n')
@@ -256,7 +256,7 @@ class TestMain(StreamCaptureTest):
         test_passed_file_twice
         """
         t = NamedTemporaryFile()
-        t.write('bye\n')
+        t.write(b'bye\n')
         t.flush()
         cli.main(['-l', 'line.replace("bye", "hi")', t.name, t.name])
         self.assertWasStreamed('hi\nhi\n')
@@ -266,7 +266,7 @@ class TestMain(StreamCaptureTest):
         test_in_place_modification
         """
         t = NamedTemporaryFile()
-        t.write('bye\n')
+        t.write(b'bye\n')
         t.flush()
         extension = '.bak'
         backup = t.name + extension
@@ -282,7 +282,7 @@ class TestMain(StreamCaptureTest):
         test_in_place_no_extension
         """
         t = NamedTemporaryFile()
-        t.write('bye\n')
+        t.write(b'bye\n')
         t.flush()
         extension = ''
         cli.main(['-l', '-i', extension, 'line.replace("bye", "hi")', t.name])
@@ -294,6 +294,7 @@ def main():
     """
     main
     """
+
     unit_test_main(globals())
 
 
