@@ -1,3 +1,4 @@
+merge.sh
 .idea/
 puffin.egg-info/
 *.pyc

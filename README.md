@@ -145,7 +145,7 @@ do not want a backup, you must pass the empty string with a space in bash like s
 
 ## Testing
 
-Run `make test` or `make cover`. Currently 95% coverage.
+python3 tests.py
 
 ## Extras
 
