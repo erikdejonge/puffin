@@ -5,3 +5,4 @@ puffin.egg-info/
 dist/
 .coverage
 htmlcov/
+build/
