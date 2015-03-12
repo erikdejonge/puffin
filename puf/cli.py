@@ -8,7 +8,10 @@ from future import standard_library
 standard_library.install_aliases()
 
 import argparse
-from puf import cli_lib
+try:
+    import cli_lib
+except ImportError:
+    from puf import cli_lib
 
 
 def main(params=None):
@@ -72,6 +75,7 @@ def main(params=None):
     glob = {}
 
     if args.before:
+
         exec(args.before, glob)
 
     for stream_in, stream_out in cli_lib.determine_streams(args):
@@ -91,3 +95,7 @@ def main(params=None):
                 return
 
         cli_lib.post_process(args, stream_in, stream_out)
+
+
+if __name__ == "__main__":
+    main()

@@ -117,7 +117,6 @@ def safe_evaluate(command, glob, local):
     """
     Continue to attempt to execute the given command, importing objects which
     cause a NameError in the command
-
     :param command: command for eval
     :param glob: globals dict for eval
     :param local: locals dict for eval
@@ -193,6 +192,13 @@ def interpret_stream(stream_in, line=False, skip_header=False, separator=None):
             yield parse_buffer(stream_in, separator)
 
 
+import hashlib
+import marshal
+import os
+if not os.path.exists(os.path.join(os.path.expanduser("~"), ".puf")):
+    os.mkdir(os.path.join(os.path.expanduser("~"), ".puf"))
+
+
 def evaluate(local, glob, command, filename):
     """
     @type local: str, unicode
@@ -203,10 +209,35 @@ def evaluate(local, glob, command, filename):
     """
     if filename:
         with open(filename) as f:
-            code = compile(f.read(), filename, 'exec')
+            command = f.read()
+            puffolder = os.path.join(os.path.expanduser("~"), ".puf")
+            hashcommand = os.path.join(puffolder, hashlib.md5(command.encode("utf-8")).hexdigest())
+
+            if os.path.exists(hashcommand):
+                code = marshal.load(open(hashcommand, "rb"))
+
+            else:
+                code = compile(command, filename, 'exec')
+                f = open(str(hashcommand), "wb")
+                marshal.dump(code, f)
+
             exec(code, glob, local)
 
     elif command:
-        return safe_evaluate(command, glob, local)
+        puffolder = os.path.join(os.path.expanduser("~"), ".puf")
+        hashcommand = os.path.join(puffolder, hashlib.md5(command.encode("utf-8")).hexdigest())
+
+        if os.path.exists(hashcommand):
+            code = marshal.load(open(hashcommand, "rb"))
+            
+        else:
+            code = compile(command, filename="cli_lib.py", mode='single')
+            f = open(str(hashcommand), "wb")
+            marshal.dump(code, f)
+
+        exec(code, glob, local)
+
+        # print(code)
+        # return safe_evaluate(command, glob, local)
     else:
         raise ValueError('Must supply either command or file.')
