@@ -10,8 +10,12 @@ from future import standard_library
 standard_library.install_aliases()
 from setuptools import setup
 setup(name='puffin',
+<<<<<<< HEAD
       version='0.2.0',
 
+=======
+      version='0.3.0',
+>>>>>>> upstream/master
       description='Python replacement for awk',
       url='http://github.com/kespindler/puffin',
       author='Kurt Spindler',
