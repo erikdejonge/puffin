@@ -9,14 +9,14 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 from setuptools import setup
-setup(name='puffin',
-      version='0.3.0',
+setup(name='puffin3',
+      version='0.3.1',
       description='Python replacement for awk',
-      url='http://github.com/kespindler/puffin',
-      author='Kurt Spindler',
+      url='https://github.com/erikdejonge/puffin',
+      author='Erik de Jonge',
       author_email='kespindler@gmail.com',
       license='MIT',
-      packages=['puf'],
+      packages=['puf3'],
       zip_safe=False,
       entry_points={
           'console_scripts': [
