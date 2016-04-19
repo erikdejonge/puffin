@@ -16,11 +16,11 @@ setup(name='puffin3',
       author='Erik de Jonge',
       author_email='kespindler@gmail.com',
       license='MIT',
-      packages=['puf3'],
+      packages=['puf'],
       zip_safe=False,
       entry_points={
           'console_scripts': [
-              'puf=puf.cli:main',
+              'puf3=puf.cli:main',
           ],
       },
       requires=['future', 'unittester', 'fabric'])
