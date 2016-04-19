@@ -14,14 +14,14 @@ Puffin is a Python replacement for awk, cut, tr, and many other command line too
 $ wc -l *.txt  | awk '{s+=$1} END {print $s}'
 468
 # Puffin
-$ wc -l *.txt  | puf 'sum(cols[0])'
+$ wc -l *.txt  | puf3 'sum(cols[0])'
 468
 
 # Other methods to get the second column of a csv
 $ awk -F "\"*,\"*" '{print $2}' data.csv > names.txt
 $ cat data.csv | cut -f2 -s > names.txt
 # Puffin
-$ puf -s, 'cols[1]' data.csv > names.txt
+$ puf3 -s, 'cols[1]' data.csv > names.txt
 ```
 
 PRs, issues (especially use cases that Puffin doesn't currently address) welcome.
@@ -37,10 +37,10 @@ pip install puffin
 #### Puffin evaluates arbitrary python code
 
 ``` bash
-$ puf 27/2.5
+$ puf3 27/2.5
 10.8
 
-$ puf 'range(3)'
+$ puf3 'range(3)'
 0
 1
 2
@@ -49,7 +49,7 @@ $ puf 'range(3)'
 #### Puffin understands the input
 
 ``` bash
-$ wc -l *.txt  | puf 'sum(cols[0])'
+$ wc -l *.txt  | puf3 'sum(cols[0])'
 468
 ```
 
@@ -57,7 +57,7 @@ $ wc -l *.txt  | puf 'sum(cols[0])'
 
 ``` bash
 # gives pids of all processes owned by kurt
-$ ps aux | puf -l 'row[1] if row[0] == "kurt" else None'
+$ ps aux | puf3 -l 'row[1] if row[0] == "kurt" else None'
 5231
 155
 ...
@@ -78,24 +78,24 @@ Some examples of these in action
 
 ``` bash
 # Turn a list into comma-separated values
-$ puf '",".join(lines)' invalid.txt
+$ puf3 '",".join(lines)' invalid.txt
 3021,4439,9544,3985,1262
 
 # Check the validity of a csv
-$ puf -s, '[len(r) for r in rows]' cities.csv
+$ puf3 -s, '[len(r) for r in rows]' cities.csv
 13
 14
 13
 13
 
 # Get all pids
-$ ps aux | puf -h 'cols[1]'
+$ ps aux | puf3 -h 'cols[1]'
 5231
 155
 ...
 
 # Get every second pid
-$ ps aux | puf 'cols[::2]'
+$ ps aux | puf3 'cols[::2]'
 5231
 5495
 ...
@@ -109,7 +109,7 @@ In this case, the provided namespace is just **line** and **row**
 
 ``` bash
 # filter for all pids owned by kurt and have pid mod 10
-$ ps aux | puf -l 'row[1] if row[0] == "kurt" and row[1] % 10 == 0 else None'
+$ ps aux | puf3 -l 'row[1] if row[0] == "kurt" and row[1] % 10 == 0 else None'
 48560
 94390
 ...
@@ -120,7 +120,7 @@ $ ps aux | puf -l 'row[1] if row[0] == "kurt" and row[1] % 10 == 0 else None'
 Puffin will attempt to import anything that is unreferenced.
 
 ``` bash
-$ puf 'uuid.uuid4()'
+$ puf3 'uuid.uuid4()'
 f079dbbe-6bbc-430a-a3d1-e0f53a0ef719
 ```
 
@@ -179,7 +179,7 @@ as normal Python, without intelligent printing of any results, etc. This option 
 
 This is the same as **sed**s in-place option. Pass a file extension and pass file arguments to **puffin**. Sed will then replace the contents of the file
 with the results from the puffin operation, creating a backup with the provided extenion. It's suggested using the **-l** option in conjunction. If you
-do not want a backup, you must pass the empty string with a space in bash like so: **puf -i '' <command>**
+do not want a backup, you must pass the empty string with a space in bash like so: **puf3 -i '' <command>**
 
 ## Testing
 
