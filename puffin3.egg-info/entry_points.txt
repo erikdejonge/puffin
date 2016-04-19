@@ -1,0 +1,3 @@
+[console_scripts]
+puf3 = puf.cli:main
+
