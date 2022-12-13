@@ -1,7 +1,0 @@
-.idea/
-puffin.egg-info/
-*.pyc
-dist/
-.coverage
-htmlcov/
-build/
